@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema(
   {
-    image: String,
+    image: { 
+      type: String, 
+      default: "/default-placeholder.jpg", // Local fallback
+      set: (value) => value?.trim() ? value : "/default-placeholder.jpg"
+    },
+    
+    
     title: String,
     description: String,
     category: String,
