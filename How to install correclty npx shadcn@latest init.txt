@@ -1,0 +1,54 @@
+1. Ensure Tailwind CSS is installed:
+Run the following command to make sure that tailwindcss is installed in your project:
+
+
+npm install tailwindcss@^3.4.10
+2. Initialize Tailwind CSS configuration:
+Once Tailwind CSS is installed, run the following command to initialize the configuration files (tailwind.config.js and postcss.config.js):
+
+
+npx tailwindcss init -p
+This will generate the necessary Tailwind configuration files in your project.
+
+3. Verify the Tailwind CSS configuration:
+Ensure that your tailwind.config.js file looks something like this:
+
+js
+
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+Also, ensure that postcss.config.js exists with the following content:
+
+js
+
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer'
+
+export default {
+  plugins: [tailwindcss, autoprefixer],
+}
+4. Check Tailwind CSS setup:
+Make sure Tailwind's directives are added to your main CSS file (e.g., src/index.css or src/styles.css):
+
+css
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+5. Run the shadcn command again:
+After completing the steps above, you should be able to run the shadcn initialization command again:
+
+
+npx shadcn@latest init
+This should now successfully detect the Tailwind CSS configuration and proceed with the setup.
+
+Let me know if you run into any issues!
