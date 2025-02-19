@@ -12,14 +12,11 @@ function AdminProductTile({
     <Card className="w-full max-w-sm mx-auto">
       <div>
         <div className="relative">
-        <img
-  src={product?.image?.trim() ? product.image : "https://placehold.co/300x300"} 
-  alt={product?.title || "Product Image"}
-  className="w-full h-[300px] object-cover rounded-t-lg"
-/>
-
-
-
+          <img
+            src={product?.image}
+            alt={product?.title}
+            className="w-full h-[300px] object-cover rounded-t-lg"
+          />
         </div>
         <CardContent>
           <h2 className="text-xl font-bold mb-2 mt-2">{product?.title}</h2>
