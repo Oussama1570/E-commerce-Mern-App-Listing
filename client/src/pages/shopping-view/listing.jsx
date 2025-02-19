@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDownIcon } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 const sortOptions = [
   { id: "price_asc", label: "Price: Low to High" },
@@ -20,11 +21,25 @@ const sortOptions = [
   { id: "best_selling", label: "Best Selling" },
 ];
 
+function createSearchParamsHelper(filterParams) {
+  let queryParams = [];
+
+  for (const [key, value] of Object.entries(filterParams)) {
+    if (Array.isArray(value) && value.length > 0) {
+      const paramValue = value.join(",");
+      queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);
+    }
+  }
+
+  return queryParams.join("&");
+}
+
 function ShoppingListing() {
   const dispatch = useDispatch();
   const { productList } = useSelector((state) => state.shopProducts);
   const [filters, setFilters] = useState({});
   const [sort, setSort] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   function handleSort(value) {
     console.log("Sorting by:", value);
@@ -60,14 +75,23 @@ function ShoppingListing() {
   }
 
   useEffect(() => {
-    if (filters !== null || sort !== null) {
-      dispatch(
-        fetchAllFilteredProducts({ filterParams: filters, sortParams: sort })
-      );
-    }
+    setSort("price_asc"); // Fixed default sort value
+    setFilters(JSON.parse(sessionStorage.getItem("filters")) || {});
+  }, []);
+
+  useEffect(() => {
+    if (!filters && !sort) return;
+
+    dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
   }, [dispatch, filters, sort]);
 
-  console.log(filters, "filters");
+  console.log(filters, searchParams.toString(), "Filters");
+
+  sessionStorage.setItem("filters", JSON.stringify(filters));
+
+  function handleGetProductDetails(getCurrentProductid) {
+    console.log(getCurrentProductid);
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6 p-4 md:p-6">
@@ -76,16 +100,10 @@ function ShoppingListing() {
         <div className="p-4 border-b flex items-center justify-between">
           <h2 className="text-lg font-extrabold">All Products</h2>
           <div className="flex items-center gap-3">
-            <span className="text-muted-foreground">
-              {productList?.length} Products
-            </span>
+            <span className="text-muted-foreground">{productList?.length} Products</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1"
-                >
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
                   <ArrowUpDownIcon className="h-4 w-4" />
                   <span>Sort by</span>
                 </Button>
@@ -93,10 +111,7 @@ function ShoppingListing() {
               <DropdownMenuContent align="end" className="w-[200px]">
                 <DropdownMenuRadioGroup value={sort} onValueChange={handleSort}>
                   {sortOptions.map((sortItem) => (
-                    <DropdownMenuRadioItem
-                      value={sortItem.id}
-                      key={sortItem.id}
-                    >
+                    <DropdownMenuRadioItem value={sortItem.id} key={sortItem.id}>
                       {sortItem.label}
                     </DropdownMenuRadioItem>
                   ))}
@@ -106,20 +121,23 @@ function ShoppingListing() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {productList && productList.length > 0
-            ? productList.map((productItem) => (
-                <ShoppingProductTile
-                  key={productItem.id} 
-                  handleGetProductDetails={handleGetProductDetails}
-                  product={productItem}
-                  handleAddtoCart={handleAddtoCart}
-                />
-              ))
-            : <p className="col-span-full text-center text-gray-500">No products found.</p>}
+          {productList && productList.length > 0 ? (
+            productList.map((productItem) => (
+              <ShoppingProductTile
+                key={productItem.id}
+                handleGetProductDetails={handleGetProductDetails}
+                product={productItem}
+                handleAddtoCart={handleAddtoCart}
+              />
+            ))
+          ) : (
+            <p className="col-span-full text-center text-gray-500">No products found.</p>
+          )}
         </div>
       </div>
-    </div> 
+    </div>
   );
 }
 
 export default ShoppingListing;
+
